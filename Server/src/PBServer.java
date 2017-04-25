@@ -120,6 +120,10 @@ public class PBServer {
 		server.addListener(new ThreadedListener(new Listener(){
 			public void connected(Connection connection){
 				System.out.println("New connection! " + connection.getID()+ " " + connection.getRemoteAddressTCP());
+				if(blueTeam.size()+redTeam.size()>server.getConnections().length){
+					blueTeam.clear();
+					redTeam.clear();
+				}
 			}
 			
 			public void disconnected(Connection connection){
@@ -153,7 +157,9 @@ public class PBServer {
 				}
 				else if(object instanceof PlayerUpdate){
 					PlayerUpdate o = (PlayerUpdate) object;
+					if(o.x!=0 || o.y!=0){
 					addUpdate(o);
+					}
 					
 					if(o.team==0&&!blueTeam.contains(o.playerID)){blueTeam.add(o.playerID);}
 					if(o.team==1&&!redTeam.contains(o.playerID)){redTeam.add(o.playerID);}
