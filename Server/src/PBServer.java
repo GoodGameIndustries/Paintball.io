@@ -83,7 +83,7 @@ public class PBServer {
 				System.out.print("");
 				if(updates.size()>0){
 					System.out.println("Updates available");
-					if(updates.get(0)!=null){server.sendToAllTCP(updates.get(0));}
+					if(updates.get(0)!=null){server.sendToAllUDP(updates.get(0));}
 					updates.remove(0);
 					System.out.println("Update sent");
 				}

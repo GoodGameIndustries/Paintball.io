@@ -192,11 +192,9 @@ public class PBall extends Game {
 	public void send(Object o) {
 		connect();
 		// while(dns==null);
-		int t = 0;
 		boolean noSend = true;
-		while (noSend && t <= 3 && (dns != null || debug)) {
+		if (noSend && (dns != null || debug)) {
 			try {
-				t++;
 				client.sendTCP(o);
 				noSend = false;
 			} catch (Exception e) {
@@ -224,7 +222,7 @@ public class PBall extends Game {
 					lastUpdate = System.currentTimeMillis();
 					while (render) {
 					}
-					;
+					
 					PlayerUpdate o = (PlayerUpdate) object;
 					if (user != null && user.playerID != o.playerID) {
 						User u = findPlayer(o.playerID);
@@ -252,7 +250,7 @@ public class PBall extends Game {
 				else if (object instanceof NewBullet) {
 					while (render) {
 					}
-					;
+					
 					NewBullet o = (NewBullet) object;
 					if (user != null && o.shootID != user.playerID) {
 						User u = findPlayer(o.shootID);

@@ -471,7 +471,7 @@ public class GameScreen implements Screen, InputProcessor {
 		u.team = pb.user.team;
 		u.isSafe = pb.user.isSafe;
 
-		pb.send(u);
+		pb.client.sendUDP(u);
 
 	}
 
