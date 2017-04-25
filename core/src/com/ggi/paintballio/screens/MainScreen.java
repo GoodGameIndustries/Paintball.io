@@ -209,7 +209,7 @@ public class MainScreen implements Screen, InputProcessor {
 		Rectangle touch = new Rectangle(screenX, screenY, 1, 1);
 		if (Intersector.overlaps(touch, playB)) {
 			Login l = new Login();
-			l.user = u;
+			l.user = " "+u+" ";
 			l.version = pb.version;
 			pb.lastName = u;
 			pb.send(l);

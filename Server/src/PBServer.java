@@ -167,7 +167,7 @@ public class PBServer {
 				}
 				else if(object instanceof NewBullet){
 					NewBullet o = (NewBullet) object;
-					server.sendToAllTCP(o);
+					server.sendToAllUDP(o);
 				
 				}
 				else if(object instanceof Die){

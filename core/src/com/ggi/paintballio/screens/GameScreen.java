@@ -466,7 +466,7 @@ public class GameScreen implements Screen, InputProcessor {
 		u.y = pb.user.y;
 		u.hand = pb.user.hand;
 		u.kills = pb.user.kills;
-		u.name = pb.user.name;
+		u.name = " "+pb.user.name+" ";
 		u.playerID = pb.user.playerID;
 		u.team = pb.user.team;
 		u.isSafe = pb.user.isSafe;
