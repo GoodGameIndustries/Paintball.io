@@ -16,4 +16,7 @@ public class User {
 	public int hand = 0;
 	public int rCount = 0;
 	public int isSafe = 180;
+	public long time = System.currentTimeMillis();
+	public long lastTime = System.currentTimeMillis();
+	public int fps = 0;
 }

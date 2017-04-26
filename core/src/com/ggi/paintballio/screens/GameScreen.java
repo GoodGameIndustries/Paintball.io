@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.ggi.paintballio.PBall;
 import com.ggi.paintballio.network.Die;
@@ -53,24 +54,29 @@ public class GameScreen implements Screen, InputProcessor {
 	private int bpsc = 0;
 
 	private GlyphLayout layout = new GlyphLayout();
+	
+	private long lastTime = System.currentTimeMillis();
 
 	private Button switchHands;
 
 	private Rectangle switchHandsB;
 
 	private Joystick joystick;
+	private Joystick joystickAim;
 
 	public GameScreen(PBall pb) {
 		this.pb = pb;
 		pb.user.isSafe = 180;
 
-		switchHandsB = new Rectangle(.85f * pb.w, .1f * pb.h, .1f * pb.w, .1f * pb.w);
+		switchHandsB = new Rectangle(.825f * pb.w, .2f * pb.h + .15f*pb.w, .1f * pb.w, .1f * pb.w);
 
 		switchHands = new Button(pb.switchStyle);
 		switchHands.setBounds(switchHandsB.x, switchHandsB.y, switchHandsB.width, switchHandsB.height);
 
 		joystick = new Joystick(pb.assets.get("jsTop.png", Texture.class), pb.assets.get("jsBot.png", Texture.class),
 				new Rectangle(.05f * pb.w, .1f * pb.h, .15f * pb.w, .15f * pb.w));
+		joystickAim = new Joystick(pb.assets.get("jsTop.png", Texture.class), pb.assets.get("jsBot.png", Texture.class),
+				new Rectangle(.8f * pb.w, .1f * pb.h, .15f * pb.w, .15f * pb.w));
 
 	}
 
@@ -103,6 +109,8 @@ public class GameScreen implements Screen, InputProcessor {
 		if (bpsc > Gdx.graphics.getFramesPerSecond() / bps) {
 			bpsc = 0;
 			if (shooting != -1 && pb.user.isSafe <= 0) {
+				shootX = joystickAim.dif.x +pb.user.x*pb.gridSize;
+				shootY = joystickAim.dif.y+pb.user.y*pb.gridSize;
 				NewBullet b = new NewBullet();
 				b.x = pb.user.x;
 				b.y = pb.user.y;
@@ -338,6 +346,7 @@ public class GameScreen implements Screen, InputProcessor {
 
 		switchHands.draw(pic, 1);
 		joystick.draw(pic);
+		joystickAim.draw(pic);
 
 		if (pb.user != null) {
 			pb.user.x /= pb.gridSize;
@@ -360,8 +369,20 @@ public class GameScreen implements Screen, InputProcessor {
 		 * float difX = user.servX-user.lastX; float difY =
 		 * user.servY-user.lastY; user.x+=difX/hz; user.y+=difY/hz;
 		 */
-		user.x += (user.servX - user.x) / (hz / 5);
-		user.y += (user.servY - user.y) / (hz / 5);
+		
+		
+		//user.x += (user.servX - user.x) / 1;
+		//user.y += (user.servY - user.y) / 1;
+		
+		/*System.out.println("1 "+user.servX);
+		System.out.println("2 "+user.x);
+		System.out.println("3 "+user.lastX);*/
+		
+		Vector2 dif = new Vector2();
+		dif.x = (user.servX-user.lastX)/(user.time-user.lastTime);
+		dif.y = (user.servY-user.lastY)/(user.time-user.lastTime);
+		user.x += ((user.servX+ dif.x * (System.currentTimeMillis() - user.time)*(user.fps/hz))-user.x)/1.25f;
+		user.y += ((user.servY+ dif.y * (System.currentTimeMillis() - user.time)*(user.fps/hz))-user.y)/1.25f;
 	}
 
 	private void aimAndMove() {
@@ -455,6 +476,9 @@ public class GameScreen implements Screen, InputProcessor {
 			pb.user.servY = redSpawn.y + .5f;
 			hasSpawned = true;
 		}
+		
+		lastX=pb.user.x;
+		lastY=pb.user.y;
 		sendUpdate();
 
 	}
@@ -470,6 +494,12 @@ public class GameScreen implements Screen, InputProcessor {
 		u.playerID = pb.user.playerID;
 		u.team = pb.user.team;
 		u.isSafe = pb.user.isSafe;
+		u.lastX = lastX;
+		u.lastY = lastY;
+		u.lastTime=lastTime;
+		u.time = System.currentTimeMillis();
+		u.fps = Gdx.graphics.getFramesPerSecond();
+		lastTime = System.currentTimeMillis();
 
 		pb.client.sendUDP(u);
 
@@ -553,10 +583,11 @@ public class GameScreen implements Screen, InputProcessor {
 			switchHands.toggle();
 		} else if (Intersector.overlaps(touch, joystick.bounds)) {
 			joystick.touchDown(screenX, screenY, pointer);
-		} else {
+		} else if (Intersector.overlaps(touch, joystickAim.bounds)){
+			joystickAim.touchDown(screenX, screenY, pointer);
 			shooting = pointer;
-			shootX = screenX + focusX;
-			shootY = screenY + focusY;
+			shootX = joystickAim.dif.x +pb.user.x*pb.gridSize;
+			shootY = joystickAim.dif.y+pb.user.y*pb.gridSize;
 		}
 		return true;
 	}
@@ -568,6 +599,7 @@ public class GameScreen implements Screen, InputProcessor {
 		Rectangle touch = new Rectangle(screenX, screenY, 1, 1);
 
 		if (pointer == shooting) {
+			joystickAim.touchUp();
 			shooting = -1;
 		} else if (joystick.touchPointer == pointer) {
 			joystick.touchUp();
@@ -588,8 +620,9 @@ public class GameScreen implements Screen, InputProcessor {
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		screenY = (int) (pb.h - screenY);
 		if (pointer == shooting) {
-			shootX = screenX + focusX;
-			shootY = screenY + focusY;
+			joystickAim.touchDragged(screenX, screenY);
+			shootX = joystickAim.dif.x +pb.user.x*pb.gridSize;
+			shootY = joystickAim.dif.y+pb.user.y*pb.gridSize;
 		} else if (joystick.touchPointer == pointer) {
 			joystick.touchDragged(screenX, screenY);
 		}

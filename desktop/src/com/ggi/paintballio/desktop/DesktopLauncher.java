@@ -9,6 +9,7 @@ public class DesktopLauncher implements Resolver {
 	
 	public DesktopLauncher(){
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+		 System.setProperty("org.lwjgl.opengl.Display.allowSoftwareOpenGL", "true");
 		config.height = 450;
 		config.width = 800;
 		new LwjglApplication(new PBall(this), config);

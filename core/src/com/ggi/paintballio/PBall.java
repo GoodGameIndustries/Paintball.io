@@ -236,14 +236,17 @@ public class PBall extends Game {
 						u.name = o.name;
 						u.playerID = o.playerID;
 						u.team = o.team;
-						u.lastX = u.x;
-						u.lastY = u.y;
-						// u.x=o.x;
-						// u.y=o.y;
+						u.lastX = o.lastX;
+						u.lastY = o.lastY;
+						u.lastTime = o.lastTime;
+						u.time = System.currentTimeMillis();
+						//u.x=o.x;
+						//u.y=o.y;
 						u.servX = o.x;
 						u.servY = o.y;
 						u.rCount = 0;
 						u.isSafe = o.isSafe;
+						u.fps = o.fps;
 					}
 				}
 
