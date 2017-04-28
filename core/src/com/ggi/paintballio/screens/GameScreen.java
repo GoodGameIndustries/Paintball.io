@@ -65,6 +65,12 @@ public class GameScreen implements Screen, InputProcessor {
 	private Joystick joystickAim;
 
 	public GameScreen(PBall pb) {
+		for(int i = 0; i < pb.players.size(); i++){
+			if(pb.players.get(i).playerID<0){
+				pb.players.remove(0);
+			}
+		}
+		
 		this.pb = pb;
 		pb.user.isSafe = 180;
 
@@ -382,8 +388,8 @@ public class GameScreen implements Screen, InputProcessor {
 		Vector2 dif = new Vector2();
 		dif.x = (user.servX-user.lastX)/(user.time-user.lastTime);
 		dif.y = (user.servY-user.lastY)/(user.time-user.lastTime);
-		user.x += ((user.servX+ dif.x * (System.currentTimeMillis() - user.time)*(user.fps/hz))-user.x)/1.25f;
-		user.y += ((user.servY+ dif.y * (System.currentTimeMillis() - user.time)*(user.fps/hz))-user.y)/1.25f;
+		user.x += ((user.servX+ 2*dif.x * (System.currentTimeMillis() - user.time)*(user.fps/hz))-user.x)/3f;
+		user.y += ((user.servY+ 2*dif.y * (System.currentTimeMillis() - user.time)*(user.fps/hz))-user.y)/3f;
 	}
 
 	private void aimAndMove() {
@@ -433,11 +439,11 @@ public class GameScreen implements Screen, InputProcessor {
 	private void boundsCheck() {
 		for (int i = 0; i < pb.map.length; i++) {
 			for (int j = 0; j < pb.map[i].length; j++) {
-				if (pb.map[i][j] == 1 && Intersector.overlaps(new Circle(pb.user.x, pb.user.y, .25f),
+				if (pb.map[i][j] == 1 && Intersector.overlaps(new Circle(pb.user.x, pb.user.y, .4f),
 						new Rectangle(j, (pb.map.length - i), 1, 1))) {
 					float temp = pb.user.x;
 					pb.user.x = lastX;
-					if (pb.map[i][j] == 1 && Intersector.overlaps(new Circle(pb.user.x, pb.user.y, .25f),
+					if (pb.map[i][j] == 1 && Intersector.overlaps(new Circle(pb.user.x, pb.user.y, .4f),
 							new Rectangle(j, (pb.map.length - i), 1, 1))) {
 						pb.user.x = temp;
 					} else {
@@ -445,14 +451,14 @@ public class GameScreen implements Screen, InputProcessor {
 					}
 					temp = pb.user.y;
 					pb.user.y = lastY;
-					if (pb.map[i][j] == 1 && Intersector.overlaps(new Circle(pb.user.x, pb.user.y, .25f),
+					if (pb.map[i][j] == 1 && Intersector.overlaps(new Circle(pb.user.x, pb.user.y, .4f),
 							new Rectangle(j, (pb.map.length - i), 1, 1))) {
 						pb.user.y = temp;
 					} else {
 						return;
 					}
 
-					if (pb.map[i][j] == 1 && Intersector.overlaps(new Circle(pb.user.x, pb.user.y, .25f),
+					if (pb.map[i][j] == 1 && Intersector.overlaps(new Circle(pb.user.x, pb.user.y, .4f),
 							new Rectangle(j, (pb.map.length - i), 1, 1))) {
 						pb.user.y = lastY;
 						pb.user.x = lastX;
