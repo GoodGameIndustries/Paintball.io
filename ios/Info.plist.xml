@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>MinimumOSVersion</key>
+	<string>7.1.2</string>
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>CFBundleDisplayName</key>
@@ -28,6 +30,8 @@
     <false/>
     <key>UIStatusBarHidden</key>
     <true/>
+    <key>UIRequiresFullScreen</key>
+    <true/>
     <key>UIDeviceFamily</key>
     <array>
         <integer>1</integer>
@@ -51,6 +55,9 @@
             <array>
                 <string>Icon</string>
                 <string>Icon-72</string>
+                <string>Icon-120</string>
+                <string>Icon-152</string>
+                <string>Icon-76</string>
             </array>
         </dict>
     </dict>
