@@ -1,7 +1,7 @@
 <config>
   <executableName>${app.executable}</executableName>
   <mainClass>${app.mainclass}</mainClass>
-  <os>ios</os>
+  <os>ios</os>"/Users/emmettdeen/uParty-App/ios/robovm.xml"
   <arch>thumbv7</arch>
   <target>ios</target>
   <iosInfoPList>Info.plist.xml</iosInfoPList>
@@ -31,11 +31,14 @@
     <pattern>com.android.org.bouncycastle.crypto.digests.AndroidDigestFactoryOpenSSL</pattern>
     <pattern>org.apache.harmony.security.provider.cert.DRLCertFactory</pattern>
     <pattern>org.apache.harmony.security.provider.crypto.CryptoProvider</pattern>
-    <pattern>com.esotericsoftware.kryo.**</pattern>
+    <pattern>com.esotericsoftware.**</pattern>
   </forceLinkClasses>
   <libs>
       <lib>z</lib>   
   </libs>
+  <frameworkPaths>
+        <path>libs</path>
+    </frameworkPaths>
   <frameworks>
     <framework>UIKit</framework>
     <framework>OpenGLES</framework>
@@ -44,5 +47,6 @@
     <framework>OpenAL</framework>
     <framework>AudioToolbox</framework>
     <framework>AVFoundation</framework>
-  </frameworks>
+    <framework>GoogleMobileAds</framework>
+    </frameworks>
 </config>

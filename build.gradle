@@ -1,4 +1,5 @@
 buildscript {
+	project.ext.robopodsVersion = "2.2.1"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -9,7 +10,6 @@ buildscript {
         classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.6'
         classpath 'com.android.tools.build:gradle:1.5.0'
         classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.1-SNAPSHOT'
-        
     }
 }
 
@@ -91,6 +91,7 @@ project(":ios") {
         compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-ios"
         compile "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-ios"
         compile "com.esotericsoftware:kryonet:2.22.0-RC1"
+        compile "com.mobidevelop.robovm:robopods-google-mobile-ads-ios:$robopodsVersion"
         
     }
 }
