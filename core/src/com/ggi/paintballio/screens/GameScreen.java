@@ -502,7 +502,11 @@ public class GameScreen implements Screen, InputProcessor {
 		u.fps = Gdx.graphics.getFramesPerSecond();
 		lastTime = System.currentTimeMillis();
 
+		try{
 		pb.client.sendUDP(u);
+		}catch(Exception e){
+			pb.client.sendTCP(u);
+		}
 
 	}
 
