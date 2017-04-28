@@ -163,30 +163,37 @@ public class PBall extends Game {
 	}
 
 	public void connect() {
-		if ((!client.isConnected() && dns != null) || (!client.isConnected() && debug)) {
-			try {
-				client.connect(5000, debug ? "localhost" : dns, 30000, 31111);
-				error = false;
-				isLoading = true;
-			} catch (IOException e) {
-				dns = null;
-				isLoading = false;
-				error = true;
-				e.printStackTrace();
-			}
-		} else if (!client.isConnected()) {
-			try {
-				client.connect(5000, debug ? "localhost" : "ec2-54-71-24-203.us-west-2.compute.amazonaws.com", 30001,
-						31112);
-				client.sendTCP(new ClientConn());
-				error = false;
-				isLoading = true;
-			} catch (IOException e) {
-				isLoading = false;
-				error = true;
-				e.printStackTrace();
-			}
+		Thread t = new Thread(new Runnable(){
+				@Override
+		public void run() {
+					if ((!client.isConnected() && dns != null) || (!client.isConnected() && debug)) {
+						try {
+							client.connect(5000, debug ? "localhost" : dns, 30000, 31111);
+							error = false;
+							isLoading = true;
+						} catch (IOException e) {
+							dns = null;
+							isLoading = false;
+							error = true;
+							e.printStackTrace();
+						}
+					} else if (!client.isConnected()) {
+						try {
+							client.connect(5000, debug ? "localhost" : "ec2-54-71-24-203.us-west-2.compute.amazonaws.com", 30001,
+									31112);
+							client.sendTCP(new ClientConn());
+							error = false;
+							isLoading = true;
+						} catch (IOException e) {
+							isLoading = false;
+							error = true;
+							e.printStackTrace();
+						}
+					}
+
+			
 		}
+		});t.start();
 	}
 
 	public void send(Object o) {

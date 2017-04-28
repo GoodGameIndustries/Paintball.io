@@ -277,6 +277,7 @@ public class GameScreen implements Screen, InputProcessor {
 
 		for (int i = 0; i < pb.bullets.size(); i++) {
 			NewBullet b = pb.bullets.get(i);
+			if(b!=null){
 			b.x += pbSpeed * Math.cos(Math.toRadians(b.angle));
 			b.y += pbSpeed * Math.sin(Math.toRadians(b.angle));
 
@@ -323,7 +324,7 @@ public class GameScreen implements Screen, InputProcessor {
 					}
 				}
 			}
-
+			}
 		}
 
 		pic.draw(pb.assets.get("leaderboard.png", Texture.class), .75f * pb.w, .75f * pb.h, .25f * pb.w, .25f * pb.h);
