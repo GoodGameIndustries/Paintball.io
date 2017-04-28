@@ -25,4 +25,16 @@ public class IOSLauncher extends IOSApplication.Delegate implements Resolver {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void loadAd() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isAdShown() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
