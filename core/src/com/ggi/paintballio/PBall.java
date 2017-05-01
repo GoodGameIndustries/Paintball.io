@@ -23,6 +23,7 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Listener.ThreadedListener;
 import com.ggi.paintballio.network.ClientConn;
 import com.ggi.paintballio.network.Die;
+import com.ggi.paintballio.network.Login;
 import com.ggi.paintballio.network.Network;
 import com.ggi.paintballio.network.NewBullet;
 import com.ggi.paintballio.network.PlayerUpdate;
@@ -83,11 +84,21 @@ public class PBall extends Game {
 		loadFonts();
 		load();
 		createClient();
-		connect();
+		//connect();
 		gridSize = w / 32;
 		map = testmap();
 		setScreen(new LoadScreen(this));
 
+	}
+	
+	@Override
+	public void pause(){
+		Gdx.app.exit();
+	}
+	
+	@Override
+	public void resume(){
+		super.resume();
 	}
 
 	private void loadFonts() {
@@ -170,12 +181,13 @@ public class PBall extends Game {
 						try {
 							client.connect(5000, debug ? "localhost" : dns, 30000, 31111);
 							error = false;
-							isLoading = true;
+							//isLoading = true;
 						} catch (IOException e) {
 							dns = null;
 							isLoading = false;
 							error = true;
 							e.printStackTrace();
+							createClient();
 						}
 					} else if (!client.isConnected()) {
 						try {
@@ -183,11 +195,12 @@ public class PBall extends Game {
 									31112);
 							client.sendTCP(new ClientConn());
 							error = false;
-							isLoading = true;
+							//isLoading = true;
 						} catch (IOException e) {
 							isLoading = false;
 							error = true;
 							e.printStackTrace();
+							createClient();
 						}
 					}
 
@@ -202,12 +215,14 @@ public class PBall extends Game {
 		boolean noSend = true;
 		if (noSend && (dns != null || debug)) {
 			try {
+				if(o instanceof Login){isLoading = true;}
 				client.sendTCP(o);
 				noSend = false;
 			} catch (Exception e) {
 				isLoading = false;
 				error = true;
 				e.printStackTrace();
+				createClient();
 			}
 		}
 	}

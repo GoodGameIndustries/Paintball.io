@@ -43,6 +43,9 @@ public class MainScreen implements Screen, InputProcessor {
 	public MainScreen(PBall pb) {
 
 		this.pb = pb;
+		
+		pb.connect();
+		
 		pb.isLoading = false;
 		pb.error = false;
 		grid = pb.assets.get("grid.png");
@@ -66,6 +69,8 @@ public class MainScreen implements Screen, InputProcessor {
 		play.setBounds(playB.x, playB.y, playB.width, playB.height);
 
 		stage.addActor(userField);
+		
+		
 	}
 
 	@Override
