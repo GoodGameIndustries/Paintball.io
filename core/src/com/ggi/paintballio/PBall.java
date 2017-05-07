@@ -37,6 +37,7 @@ public class PBall extends Game {
 	public float w;
 	public float h;
 	public float gridSize;
+	
 
 	public int[][] map;
 
@@ -72,6 +73,9 @@ public class PBall extends Game {
 	public boolean isLoading = false;
 	public long lastUpdate = System.currentTimeMillis();
 	public boolean error = false;
+	
+	int lastDied = -1;
+	public boolean lost = false;
 
 	public PBall(Resolver resolver) {
 		this.resolver = resolver;
@@ -93,7 +97,7 @@ public class PBall extends Game {
 	
 	@Override
 	public void pause(){
-		Gdx.app.exit();
+		//Gdx.app.exit();
 	}
 	
 	@Override
@@ -185,7 +189,7 @@ public class PBall extends Game {
 						} catch (IOException e) {
 							dns = null;
 							isLoading = false;
-							error = true;
+							//error = true;
 							e.printStackTrace();
 							createClient();
 						}
@@ -199,7 +203,7 @@ public class PBall extends Game {
 						} catch (IOException e) {
 							isLoading = false;
 							error = true;
-							e.printStackTrace();
+							//e.printStackTrace();
 							createClient();
 						}
 					}
@@ -228,14 +232,16 @@ public class PBall extends Game {
 	}
 
 	public void createClient() {
-		client = new Client(4096, 256);
+		try{
+		client = new Client();
 		client.addListener(new ThreadedListener(new Listener() {
 			public void received(Connection connection, Object object) {
+				lastUpdate = System.currentTimeMillis();
 				// System.out.println("object received");
 				if (object instanceof User) {
 					System.out.println("User received");
 					User o = (User) object;
-					user = o;
+					if(user==null){user = o;}
 					map = genMap(user.map);
 					// map = user.map;
 				}
@@ -245,9 +251,11 @@ public class PBall extends Game {
 					while (render) {
 					}
 					
+					try{
 					PlayerUpdate o = (PlayerUpdate) object;
-					if (user != null && user.playerID != o.playerID) {
+					if (user != null && user.playerID != o.playerID&&o.playerID>0&&o.playerID!=lastDied) {
 						User u = findPlayer(o.playerID);
+						if(u!=null){
 						if (u.x == -1 || u.y == -1) {
 							u.x = o.x;
 							u.y = o.y;
@@ -269,13 +277,15 @@ public class PBall extends Game {
 						u.rCount = 0;
 						u.isSafe = o.isSafe;
 						u.fps = o.fps;
+						}
 					}
+					}catch(Exception e){}
 				}
 
 				else if (object instanceof NewBullet) {
 					while (render) {
 					}
-					
+					try{
 					NewBullet o = (NewBullet) object;
 					if (user != null && o.shootID != user.playerID) {
 						User u = findPlayer(o.shootID);
@@ -292,10 +302,13 @@ public class PBall extends Game {
 						}
 						bullets.add(o);
 					}
+					}catch(Exception e){}
 				} else if (object instanceof Die) {
 					Die o = (Die) object;
+					try{
 					if (user != null && o.playerID != user.playerID) {
 						User dying = findPlayer(o.playerID);
+						lastDied = o.playerID;
 						players.remove(dying);
 						if (o.killerID != user.playerID && o.killerID >= 0) {
 							User killing = findPlayer(o.killerID);
@@ -303,7 +316,7 @@ public class PBall extends Game {
 						} else if (o.killerID >= 0) {
 							user.kills++;
 						}
-					}
+					}}catch(Exception e){}
 				}
 
 				else if (object instanceof ServerConn) {
@@ -316,8 +329,11 @@ public class PBall extends Game {
 
 			}
 		}));
+		
 		client.start();
+		
 		Network.register(client);
+		}catch(Exception e){}
 	}
 
 	protected int[][] genMap(int map) {
@@ -486,16 +502,24 @@ public class PBall extends Game {
 		return def;
 	}
 
-	protected User findPlayer(int playerID) {
+	public User findPlayer(int playerID) {
+		if(playerID>0){
+		try{
 		for (int i = 0; i < players.size(); i++) {
 			if (players.get(i).playerID == playerID) {
 				return players.get(i);
 			}
 		}
+		}
+		catch(Exception e){
+			
+		}
 		User u = new User();
 		players.add(u);
 
 		return u;
+		}
+		return null;
 	}
 
 	private int[][] testmap() {

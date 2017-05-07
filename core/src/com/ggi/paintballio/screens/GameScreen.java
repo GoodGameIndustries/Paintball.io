@@ -48,7 +48,7 @@ public class GameScreen implements Screen, InputProcessor {
 
 	private int keys = 0000;
 	private int fc = 0;
-	private int hz = 45;
+	private int hz = 30;
 	private int shooting = -1;
 	private int bps = 10;
 	private int bpsc = 0;
@@ -65,6 +65,7 @@ public class GameScreen implements Screen, InputProcessor {
 	private Joystick joystickAim;
 
 	public GameScreen(PBall pb) {
+		pb.lost = false;
 		for(int i = 0; i < pb.players.size(); i++){
 			if(pb.players.get(i).playerID<0){
 				pb.players.remove(0);
@@ -84,6 +85,7 @@ public class GameScreen implements Screen, InputProcessor {
 		joystickAim = new Joystick(pb.assets.get("jsTop.png", Texture.class), pb.assets.get("jsBot.png", Texture.class),
 				new Rectangle(.8f * pb.w, .1f * pb.h, .15f * pb.w, .15f * pb.w));
 
+		pb.lastUpdate = System.currentTimeMillis();
 	}
 
 	@Override
@@ -94,7 +96,8 @@ public class GameScreen implements Screen, InputProcessor {
 
 	@Override
 	public void render(float delta) {
-		if (pb.user.isSafe > 0) {
+		
+		if (pb.user!=null&&pb.user.isSafe > 0) {
 			pb.user.isSafe--;
 		}
 		if (!hasSpawned && blueSpawn != null && redSpawn != null) {
@@ -227,7 +230,7 @@ public class GameScreen implements Screen, InputProcessor {
 
 		for (int i = 0; i < pb.players.size(); i++) {
 			User user = pb.players.get(i);
-
+			
 			smooth(user);
 			user.x *= pb.gridSize;
 			user.y *= pb.gridSize;
@@ -299,8 +302,7 @@ public class GameScreen implements Screen, InputProcessor {
 			}
 
 			if ((Intersector.overlaps(new Circle(b.x * pb.gridSize, b.y * pb.gridSize, pb.gridSize / 10),
-					new Circle(pb.user.x, pb.user.y, pb.gridSize / 4)) && b.team != pb.user.team)
-					|| System.currentTimeMillis() - pb.lastUpdate > 20000) {
+					new Circle(pb.user.x, pb.user.y, pb.gridSize / 4)) && b.team != pb.user.team)) {
 				pb.bullets.remove(b);
 				if (pb.user.isSafe <= 0) {
 					Die d = new Die();
@@ -308,13 +310,16 @@ public class GameScreen implements Screen, InputProcessor {
 					d.killerID = b.shootID;
 					d.playerTeam = pb.user.team;
 					pb.send(d);
-					pb.setScreen(new DieScreen(pb));
+					User killer = pb.findPlayer(d.killerID);
+					
+					pb.setScreen(new DieScreen(pb,killer!=null?killer.name:""));
 				}
 			}
 
+			
 			for (int j = 0; j < pb.players.size(); j++) {
 				User user = pb.players.get(j);
-				if (Intersector.overlaps(new Circle(b.x, b.y, 1 / 10f), new Circle(user.x, user.y, 1 / 4f))
+				if (user!=null&&Intersector.overlaps(new Circle(b.x, b.y, 1 / 10f), new Circle(user.x, user.y, 1 / 4f))
 						&& b.team != user.team) {
 					pb.bullets.remove(b);
 				}
@@ -335,8 +340,11 @@ public class GameScreen implements Screen, InputProcessor {
 
 		pic.draw(pb.assets.get("leaderboard.png", Texture.class), .75f * pb.w, .75f * pb.h, .25f * pb.w, .25f * pb.h);
 
+		try{
 		pb.players.add(pb.user);
 		Collections.sort(pb.players, new KillComparator());
+		
+		
 		for (int i = 0; i < pb.players.size(); i++) {
 			if (i > 10) {
 				break;
@@ -350,6 +358,7 @@ public class GameScreen implements Screen, InputProcessor {
 			}
 		}
 		pb.players.remove(pb.user);
+		}catch(Exception e){}
 
 		switchHands.draw(pic, 1);
 		joystick.draw(pic);
@@ -364,6 +373,29 @@ public class GameScreen implements Screen, InputProcessor {
 		if ((pb.map.length - pb.user.y < 0 || pb.map.length - pb.user.y > pb.map.length || pb.user.x < 0
 				|| pb.user.x > pb.map[0].length) && pb.user != null) {
 			spawn();
+		}
+		
+		if(System.currentTimeMillis()-pb.lastUpdate>2000){
+			Die d = new Die();
+			d.playerID = pb.user.playerID;
+			//d.killerID = b.shootID;
+			d.playerTeam = pb.user.team;
+			pb.send(d);
+			pb.client.close();
+			Thread t = new Thread(new Runnable(){
+
+				@Override
+				public void run() {
+					pb.createClient();
+					
+				}
+				
+			});
+			t.start();
+			pb.lost = true;
+			pb.setScreen(new MainScreen(pb));
+			
+			
 		}
 	}
 

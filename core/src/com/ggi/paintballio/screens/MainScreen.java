@@ -70,7 +70,7 @@ public class MainScreen implements Screen, InputProcessor {
 
 		stage.addActor(userField);
 		
-		
+		pb.user=null;
 	}
 
 	@Override
@@ -121,6 +121,14 @@ public class MainScreen implements Screen, InputProcessor {
 					"Error connecting to server. Please make sure your app is up to date.");
 			pb.mediumFnt.setColor(1f, .3f, .3f, 1);
 			pb.mediumFnt.draw(pic, "Error connecting to server. Please make sure your app is up to date.",
+					pb.w / 2 - layout.width / 2, .15f * pb.h + layout.height / 2);
+		}
+		else if (pb.lost) {
+			pb.isLoading = false;
+			layout = new GlyphLayout(pb.mediumFnt,
+					"Lost connection to server.");
+			pb.mediumFnt.setColor(1f, .3f, .3f, 1);
+			pb.mediumFnt.draw(pic, "Lost connection to server.",
 					pb.w / 2 - layout.width / 2, .15f * pb.h + layout.height / 2);
 		}
 		// Button
@@ -216,8 +224,32 @@ public class MainScreen implements Screen, InputProcessor {
 			Login l = new Login();
 			l.user = " "+u+" ";
 			l.version = pb.version;
+			
+			
+			Thread t = new Thread(new Runnable(){
+
+				@Override
+				public void run() {
+					while(pb.user==null){
+						Login l = new Login();
+						l.user = " "+u+" ";
+						l.version = pb.version;
+						pb.send(l);
+						
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					
+				}
+				
+			});
+			
+			t.start();
 			pb.lastName = u;
-			pb.send(l);
 			pb.isLoading = true;
 		} else if (Intersector.overlaps(touch, userFieldB)) {
 			stage.setKeyboardFocus(userField);

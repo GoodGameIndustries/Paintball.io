@@ -79,35 +79,41 @@ public class PBServer {
 				if(!debug){client.sendTCP(s);}
 				sendTime = System.currentTimeMillis();
 				}
-				if(System.currentTimeMillis()-startTime>21600000){System.exit(0);}
+				if(System.currentTimeMillis()-startTime>1800000){System.exit(0);}
 				System.out.print("");
+				try{
 				if(updates.size()>0){
-					System.out.println("Updates available");
+					//System.out.println("Updates available");
 					if(updates.get(0)!=null){server.sendToAllUDP(updates.get(0));}
 					updates.remove(0);
-					System.out.println("Update sent");
-				}
+					//System.out.println("Update sent");
+				}}catch(Exception e){}
 			}
 				
 			}
 			
 		});
 		t.start();
-		//genBots();
+		genBots();
 	}
 	
 	private void genBots() {
 		for(int i = 0; i < 1; i++){
-			Bot b = new Bot(this);
-			bots.add(b);
-			Thread t = new Thread(b);
-			t.start();
+			Bot b1 = new Bot(this,0);
+			Bot b2 = new Bot(this,1);
+			
+			bots.add(b1);
+			bots.add(b2);
+			Thread t1 = new Thread(b1);
+			Thread t2 = new Thread(b2);
+			t1.start();
+			t2.start();
 		}
 		
 	}
 
 	private void runServer(){
-		server = new Server(8192,512);
+		server = new Server();
 		server.start();
 		try {
 			server.bind(30000,31111);
@@ -153,12 +159,13 @@ public class PBServer {
 						u.team=1;
 						redTeam.add(connection.getID());
 					}else{u.team=0;blueTeam.add(connection.getID());}
-					connection.sendTCP(u);
+					connection.sendUDP(u);
 				}
 				else if(object instanceof PlayerUpdate){
 					PlayerUpdate o = (PlayerUpdate) object;
 					if(o.x!=0 || o.y!=0){
 					addUpdate(o);
+					//	server.sendToAllUDP(o);
 					}
 					
 					if(o.team==0&&!blueTeam.contains(o.playerID)){blueTeam.add(o.playerID);}
@@ -174,6 +181,14 @@ public class PBServer {
 					Die o = (Die) object;
 					if(o.playerTeam==0){blueTeam.remove((Integer)(o.playerID));}
 					else{redTeam.remove((Integer)(o.playerID));}
+					
+					try{
+					for(int i = 0; i < updates.size(); i++){
+						if(updates.get(i).playerID == o.playerID){
+							updates.remove(i);
+						}
+					}}catch(Exception e){}
+					
 					server.sendToAllTCP(o);
 				
 				}
@@ -182,15 +197,19 @@ public class PBServer {
 	}
 	
 	protected void addUpdate(PlayerUpdate o) {
+		try{
 		for(int i = 0; i < updates.size(); i++){
 			if(updates.get(i).playerID==o.playerID){
 				updates.set(i, o);
-				System.out.println("Update refreshed");
+				//System.out.println("Update refreshed");
 				return;
 			}
 		}
 		updates.add(o);
-		System.out.println("Update added");
+		//System.out.println("Update added");
+		}catch(Exception e){
+			
+		}
 		
 	}
 
